@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+       <meta charset="utf-8">
+       <title>Grammar Trainer : Admin</title>
+       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    </head>
+    <body>
+        <h1>Espace d'administration</h1>
+        <fieldset>
+            <legend>Créer des exercices de conjugaison</legend>
+            <div>
+                <select>
+                    <option>Je</option>
+                    <option>Tu</option>
+                    <option>Il/Elle/On</option>
+                    <option>Nous</option>
+                    <option>Vous</option>
+                    <option>Ils/Elles</option>
+                </select>
+                <div id="app"></div>
+                <input type="radio" id="findConjugatedVerb" name="typeExample" checked>
+                <label for="findConjugatedVerb">Trouver le verbe conjugé</label>
+                <input type="radio" id="findTense" name="typeExample">
+                <label for="findTense">Trouver le temps</label>
+                <input type="radio" id="findPronoun" name="typeExample">
+                <label for="findPronoun">Trouver le pronom</label>
+                <input type="radio" id="findInfinitiveVerb" name="typeExample">
+                <label for="findInfinitiveVerb">Trouver le verbe à l'infinitif</label>
+                <input type="button" value="Créer" />
+            </div>
+        </fieldset>
+        <script src="./static/dist/app.js"></script>
+    </body>
+</html>
