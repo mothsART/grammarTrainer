@@ -11,6 +11,8 @@ serde_json      = "1.0"
 serde_derive    = "1.0"
 diesel = { version = "1.1.1", features = ["sqlite"] }
 dotenv = "0.10.0"
+#nom = { git = "https://github.com/Geal/nom.git", branch = "master" }
+nom = "4.0"
 
 [dependencies.rocket_contrib]
 version = "0.3.0"

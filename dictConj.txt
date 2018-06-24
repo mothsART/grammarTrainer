@@ -1,0 +1,60 @@
+abaisser	1_it_q__a
+_	infi	abaisser
+_	ppre	abaissant
+_	ipre 1sg	abaisse
+_	ipre 3sg	abaisse
+_	spre 1sg	abaisse
+_	spre 3sg	abaisse
+_	ipre 1isg	abaissè
+_	ipre 2sg	abaisses
+_	spre 2sg	abaisses
+_	ipre 1pl	abaissons
+_	ipre 2pl	abaissez
+_	ipre 3pl	abaissent
+_	spre 3pl	abaissent
+_	iimp 1sg	abaissais
+_	iimp 2sg	abaissais
+_	iimp 3sg	abaissait
+_	iimp 1pl	abaissions
+_	spre 1pl	abaissions
+_	iimp 2pl	abaissiez
+_	spre 2pl	abaissiez
+_	iimp 3pl	abaissaient
+_	ipsi 1sg	abaissai
+_	ipsi 2sg	abaissas
+_	ipsi 3sg	abaissa
+_	ipsi 1pl	abaissâmes
+_	ipsi 2pl	abaissâtes
+_	ipsi 3pl	abaissèrent
+_	ifut 1sg	abaisserai
+_	ifut 2sg	abaisseras
+_	ifut 3sg	abaissera
+_	ifut 1pl	abaisserons
+_	ifut 2pl	abaisserez
+_	ifut 3pl	abaisseront
+_	cond 1sg	abaisserais
+_	cond 2sg	abaisserais
+_	cond 3sg	abaisserait
+_	cond 1pl	abaisserions
+_	cond 2pl	abaisseriez
+_	cond 3pl	abaisseraient
+_	simp 1sg	abaissasse
+_	simp 2sg	abaissasses
+_	simp 3sg	abaissât
+_	simp 1pl	abaissassions
+_	simp 2pl	abaissassiez
+_	simp 3pl	abaissassent
+_	impe 2sg	abaisse
+_	impe 1pl	abaissons
+_	impe 2pl	abaissez
+_	ppas mas sg	abaissé
+_	ppas mas pl	abaissés
+_	ppas fem sg	abaissée
+_	ppas fem pl	abaissées
+$
+abalober	1__t___zz
+_	infi	abalober
+$
+abalourdir	2__t_q_zz
+_	infi	abalourdir
+$
