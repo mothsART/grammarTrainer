@@ -106,7 +106,7 @@ export default {
     },
     // When one of the suggestion is clicked
     suggestionClick (index) {
-	  this.current = index
+      this.current = index
       this.search = this.results[index]
       this.open = false
     }

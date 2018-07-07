@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate nom;
+extern crate grammatrainer;
 
 use std::str;
 use std::fs::File;
@@ -7,92 +8,12 @@ use std::io::Read;
 
 use nom::IResult;
 
-// ÉTIQUETTES DE GRAMMALECTE
+use grammatrainer::{
+    GrammaTrainerDataBaseStruct,
+    GrammaTrainerDataBase
+};
 
-#[derive(Debug)]
-enum GroupeVerbal {
-    EtreOuAvoir,
-    PremierGroupe,
-    DeuxiemeGroupe,
-    TroisiemeGroupe
-}
-
-#[derive(Debug)]
-enum TypeDeVerbe {
-    Etre,
-    Avoir,
-    Autre
-}
-
-#[derive(Debug)]
-enum VerbeIntransitif {
-    Intransitif,
-    X,
-    Indefini
-}
-
-#[derive(Debug)]
-enum VerbeTransitifDirect {
-    Transitif,
-    X,
-    Indefini
-}
-
-#[derive(Debug)]
-enum VerbeTransitifInDirect {
-    Intransitif,
-    X,
-    Indefini
-}
-
-#[derive(Debug)]
-enum VerbePronomial {
-    Toujours,
-    Reciproque,
-    AvecPronomEN,
-    Accord,
-    Oui,
-    Jamais,
-    Possiblement,
-    X,
-    Indefini
-}
-
-#[derive(Debug)]
-enum VerbeImpersonnel {
-    Impersonnel,
-    X,
-    Indefini
-}
-
-#[derive(Debug)]
-enum VerbeAuxilliaireEtre {
-    Oui,
-    Non,
-    Indefini
-}
-
-#[derive(Debug)]
-enum VerbeAuxilliaireAvoir {
-    Oui,
-    Non,
-    Indefini
-}
-
-#[derive(Debug)]
-enum Temps {
-    Infinitif,
-    ParticipePresent,
-    ParticipePasse,
-    IndicatifPresent,
-    IndicatifImparfait,
-    IndicatifPasseSimple,
-    IndicatifFutur,
-    SubjonctifPresent,
-    SubjonctifImparfait,
-    Conditionnel,
-    Imperatif
-}
+use grammatrainer::verbs::*;
 
 named!(extract_gv(&[u8]) -> GroupeVerbal,
     alt!(
@@ -102,6 +23,7 @@ named!(extract_gv(&[u8]) -> GroupeVerbal,
         map!(tag!("3"), |_| GroupeVerbal::TroisiemeGroupe)
     )
 );
+
 
 named!(extract_tv(&[u8]) -> TypeDeVerbe,
     alt!(
@@ -158,8 +80,8 @@ named!(extract_ip(&[u8]) -> VerbeImpersonnel,
 
 named!(extract_ae(&[u8]) -> VerbeAuxilliaireEtre,
     alt!(
-        map!(tag!("e"), |_| VerbeAuxilliaireEtre::Oui) |
-        map!(tag!("x"), |_| VerbeAuxilliaireEtre::Non) |
+        map!(tag!("e"), |_| VerbeAuxilliaireEtre::Oui)      |
+        map!(tag!("x"), |_| VerbeAuxilliaireEtre::Non)      |
         map!(tag!("z"), |_| VerbeAuxilliaireEtre::Indefini) |
         map!(tag!("_"), |_| VerbeAuxilliaireEtre::Indefini)
     )
@@ -167,31 +89,12 @@ named!(extract_ae(&[u8]) -> VerbeAuxilliaireEtre,
 
 named!(extract_aa(&[u8]) -> VerbeAuxilliaireAvoir,
     alt!(
-        map!(tag!("a"), |_| VerbeAuxilliaireAvoir::Oui) |
-        map!(tag!("x"), |_| VerbeAuxilliaireAvoir::Non) |
+        map!(tag!("a"), |_| VerbeAuxilliaireAvoir::Oui)      |
+        map!(tag!("x"), |_| VerbeAuxilliaireAvoir::Non)      |
         map!(tag!("z"), |_| VerbeAuxilliaireAvoir::Indefini) |
         map!(tag!("_"), |_| VerbeAuxilliaireAvoir::Indefini)
     )
 );
-
-#[derive(Debug)]
-struct GroupeDuVerbe {
-  gv: GroupeVerbal,
-  tv: TypeDeVerbe,
-  i:  VerbeIntransitif,
-  td: VerbeTransitifDirect,
-  ti: VerbeTransitifInDirect,
-  p:  VerbePronomial,
-  ip: VerbeImpersonnel,
-  ae: VerbeAuxilliaireEtre,
-  aa: VerbeAuxilliaireAvoir
-}
-
-#[derive(Debug)]
-struct Verb {
-  inf: String,
-  group: GroupeDuVerbe
-}
 
 named!(extract_group<&[u8], GroupeDuVerbe>, do_parse!(
     gv: extract_gv >>
@@ -216,17 +119,63 @@ named!(extract_group<&[u8], GroupeDuVerbe>, do_parse!(
     })
 ));
 
-named!(infinitive<&[u8], Verb>, do_parse!( 
+named!(infinitive<&[u8], Verbe>, do_parse!( 
     inf: map_res!(take_until!("\t"), str::from_utf8) >>
     tag!("\t") >>
     group: extract_group >>
-    (Verb { 
-		inf:   inf.to_string(),
-		group: group
-	})
+    (Verbe { 
+        inf:   inf,
+        group: group
+    })
+));
+
+named!(extract_temps(&[u8]) -> Temps,
+    alt!(
+        map!(tag!("infi"), |_| Temps::Infinitif)            |
+        map!(tag!("ppre"), |_| Temps::ParticipePresent)     |
+        map!(tag!("ppas"), |_| Temps::ParticipePasse)       |
+        map!(tag!("ipre"), |_| Temps::IndicatifPresent)     |
+        map!(tag!("iimp"), |_| Temps::IndicatifImparfait)   |
+        map!(tag!("ipsi"), |_| Temps::IndicatifPasseSimple) |
+        map!(tag!("ifut"), |_| Temps::IndicatifFutur)       |
+        map!(tag!("cond"), |_| Temps::Conditionnel)         |
+        map!(tag!("spre"), |_| Temps::SubjonctifPresent)    |
+        map!(tag!("simp"), |_| Temps::SubjonctifImparfait)  |
+        map!(tag!("impe"), |_| Temps::Imperatif)
+    )
+);
+
+named!(extract_personne(&[u8]) -> Personne,
+    alt!(
+        map!(tag!("1sg"),  |_| Personne::PremiereSingulier)                        |
+        map!(tag!("1isg"), |_| Personne::PremiereSingulierInterrogatifAccentGrave) |
+        map!(tag!("1jsg"), |_| Personne::PremiereSingulierInterrogatifAccentAigu)  |
+        map!(tag!("2sg"),  |_| Personne::DeuxiemeSingulier)                        |
+        map!(tag!("3sg"),  |_| Personne::TroisiemeSingulier)                       |
+        map!(tag!("1pl"),  |_| Personne::PremierePluriel)                          |
+        map!(tag!("2pl"),  |_| Personne::DeuxiemePluriel)                          |
+        map!(tag!("3pl"),  |_| Personne::TroisiemePluriel)
+    )
+);
+
+named!(sentence<&[u8], Sentence>, do_parse!( 
+    tag!("_\t") >>
+    temps: extract_temps >>
+    tag!(" ") >>
+    personne: extract_personne >>
+    tag!("\t") >>
+    verbe: take_while!( nom::is_alphanumeric ) >>
+    (Sentence {
+        temps: temps,
+        personne: personne,
+        verbe: str::from_utf8(verbe).unwrap().to_string()
+    })
 ));
 
 fn main() {
+    let mut db = GrammaTrainerDataBaseStruct::new();
+    //println!("{:?}", extract_gv(b"1"));
+    
     /*
     println!("{:?}", extract_gv(b"1"));
     println!("{:?}", extract_tv(b"_"));
@@ -242,10 +191,25 @@ fn main() {
     println!("{:?}", infinitive(b"abaisser\t1_it_q__a"));
     */
     
+    //println!("{:?}", extract_temps(b"ipre"));
+    //println!("{:?}", sentence(b"_ ipre 1sg    abaisse\n"));
+    
     let mut file = File::open("dictConj.txt").expect("Could not open file");
     let mut content = String::new();
     file.read_to_string(&mut content).expect("Could not read file");
+    let mut inf = infinitive(b"abaisser\t1_it_q__a").unwrap().1;
     for line in content.lines() {
-        println!("{:?}", infinitive(line.as_bytes()));
+        match infinitive(line.as_bytes()) {
+            Ok(v)  => { inf = v.1; },
+            Err(e) => {
+                match sentence(format!("{}\n", line).as_bytes()) {
+                    Ok(s) => {
+                        //println!("{:?}", s.1);
+                        db.insert(inf, s.1);
+                    },
+                    Err(e) => {}
+                }
+            }
+        }
     }
 }
