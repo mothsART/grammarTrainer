@@ -6,8 +6,6 @@ use std::str;
 use std::fs::File;
 use std::io::Read;
 
-use nom::IResult;
-
 use grammatrainer::{
     GrammaTrainerDataBaseStruct,
     GrammaTrainerDataBase
@@ -164,7 +162,7 @@ named!(sentence<&[u8], Sentence>, do_parse!(
     tag!(" ") >>
     personne: extract_personne >>
     tag!("\t") >>
-    verbe: take_while!( nom::is_alphanumeric ) >>
+    verbe: take_until!("\n") >>
     (Sentence {
         temps: temps,
         personne: personne,
@@ -174,40 +172,19 @@ named!(sentence<&[u8], Sentence>, do_parse!(
 
 fn main() {
     let mut db = GrammaTrainerDataBaseStruct::new();
-    //println!("{:?}", extract_gv(b"1"));
-    
-    /*
-    println!("{:?}", extract_gv(b"1"));
-    println!("{:?}", extract_tv(b"_"));
-    println!("{:?}", extract_i( b"i"));
-    println!("{:?}", extract_td(b"t"));
-    println!("{:?}", extract_ti(b"_"));
-    println!("{:?}", extract_p( b"q"));
-    println!("{:?}", extract_ip(b"_"));
-    println!("{:?}", extract_ae(b"_"));
-    println!("{:?}", extract_aa(b"a"));
-    
-    println!("{:?}", extract_group(b"1_it_q__a"));
-    println!("{:?}", infinitive(b"abaisser\t1_it_q__a"));
-    */
-    
-    //println!("{:?}", extract_temps(b"ipre"));
-    //println!("{:?}", sentence(b"_ ipre 1sg    abaisse\n"));
-    
-    let mut file = File::open("dictConj.txt").expect("Could not open file");
+    let mut file = File::open("essai.txt").expect("Could not open file");
     let mut content = String::new();
     file.read_to_string(&mut content).expect("Could not read file");
     let mut inf = infinitive(b"abaisser\t1_it_q__a").unwrap().1;
     for line in content.lines() {
         match infinitive(line.as_bytes()) {
             Ok(v)  => { inf = v.1; },
-            Err(e) => {
+            Err(_e) => {
                 match sentence(format!("{}\n", line).as_bytes()) {
                     Ok(s) => {
-                        //println!("{:?}", s.1);
                         db.insert(inf, s.1);
                     },
-                    Err(e) => {}
+                    Err(_e) => {}
                 }
             }
         }
